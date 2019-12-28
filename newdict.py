@@ -4,19 +4,20 @@ import re, pickle, os
 
 class Definition:
     def __init__(self,text):
-        # Expects a single line.
+        # Expects a single string line.
         if type(text) != str:
             raise TypeError
             pass
         self.original = text
         self.english = []
-        self.pos = "" # Incorrect standard, but you can't have everything.
+        self.pos = "" # Incorrect standard (not Penn Treebank), but you can't have everything.
         self.meta = "" # Perhaps can be used to provide some sort of sentiment information
         self.chinese = []
         self.singleletter = "[English letter names are called as in English, no other standard Mandarin name exists]"
         self.parse(self.original)
+    
     def parse(self,text):
-        # Parses a line
+        # Expects a single string line
         td = text.split("::") # Splits into English/Chinese sections
         eng = td[0] # English part
         zh = td[1] # Chinese part
@@ -26,7 +27,7 @@ class Definition:
         if "(" in eng:
             self.meta = re.search(" \(.*?\) ",eng).group()
         english = eng.replace(self.pos,"")
-        self.english.append(english.replace(self.meta,"")) # Worry about extra spaces
+        self.english.append(english.replace(self.meta,""))
 
         # Chinese component
         if self.singleletter in zh:
@@ -39,7 +40,7 @@ class Definition:
                 if s!=None:
                     self.chinese.append(x.replace(s.group(),""))
         
-# Test the definition class:
+## Test the definition class:
 #f = open("en-cmn-enwiktionary.txt","r",encoding = "utf-8").read().split("\n")
 #x = Definition(f[5])
 #print(str(x.english))
@@ -48,11 +49,12 @@ class Dictionary:
     def __init__(self,filename):
         # Expects a validly formatted file name.
         self.filename = filename
-        self.terms = [] # A list for containing the entries within the dictionary.
+        self.terms = [] # TODO: Pickle?
         self.d(self.filename)
         self.div()
 
     def d(self,filename):
+        # Expects a validly formatted file name.
         f = open(filename,"r",encoding = "utf-8")
         l = f.read().split("\n") # lines
         count = 0
@@ -67,6 +69,7 @@ class Dictionary:
         f.close()
     
     def div(self):
+        # Expects nothing, other than that d didn't fail.
         try:
             os.mkdir(r"C:\Users\lge.DESKTOP-NNQ148M\programming\srs\newdict\div")
         except FileExistsError:
@@ -79,12 +82,21 @@ class Dictionary:
             if fl==last:
                 l.append(t)
             else:
-                pickle.dump(l, open(fl+".p","wb"))
+                pickle.dump(l, open(last+".p","wb"))
                 last = fl
                 l = []
-            # Line 30464 style extra information
-
+                l.append(t)
+            # TODO: Line 30464 style extra information
+            # TODO: Line 650 scenarios
+    
     def retrieve(self,text):
         pass
 
 Dictionary("en-cmn-enwiktionary.txt")
+
+## Test out a div. Also, oh my God the Python commenting system sucks
+
+#os.chdir(r"C:\Users\lge.DESKTOP-NNQ148M\programming\srs\newdict\div")
+#x = pickle.load(open("b.p","rb"))
+#print(x[len(x)-1].english)
+#print(x[0].english)
