@@ -1,6 +1,8 @@
 # Uses the brand new stuff from wikitionary! \0/
 
 import re, pickle, os
+import hanzidentifier as hz
+from zhon import hanzi
 
 class Definition:
     def __init__(self,text):
@@ -13,6 +15,7 @@ class Definition:
         self.pos = "" # Incorrect standard (not Penn Treebank), but you can't have everything.
         self.meta = "" # Perhaps can be used to provide some sort of sentiment information
         self.chinese = []
+        self.zh_extra = []
         self.singleletter = "[English letter names are called as in English, no other standard Mandarin name exists]"
         self.parse(self.original)
     
@@ -23,9 +26,11 @@ class Definition:
         zh = td[1] # Chinese part
         
         # English Component
-        self.pos = re.search(" \{.*?\}",eng).group()
+        pos = re.search(" \{.*?\}",eng).group().replace("{","")
+        self.pos = pos.replace("}","")
         if "(" in eng:
-            self.meta = re.search(" \(.*?\) ",eng).group()
+            meta = re.search(" \(.*?\) ",eng).group().replace("(","")
+            self.meta = meta.replace(")","")
         english = eng.replace(self.pos,"")
         self.english.append(english.replace(self.meta,""))
 
@@ -36,14 +41,19 @@ class Definition:
         else:
             allzh = zh.split(",")
             for x in allzh:
-                s = re.search("/.*/",x)
-                if s!=None:
-                    self.chinese.append(x.replace(s.group(),""))
+                isSimplified = hz.identify(x) is hz.SIMPLIFIED or hz.identify(x) is hz.BOTH
+                if isSimplified:
+                    s = re.search("[{}]+".format(hanzi.characters),x)
+                    e = re.search("\(.*\)",x)
+                    if s!=None:
+                        self.chinese.append(s.group())
+                    if e!=None:
+                        self.zh_extra.append(e.group())
         
 ## Test the definition class:
 #f = open("en-cmn-enwiktionary.txt","r",encoding = "utf-8").read().split("\n")
-#x = Definition(f[5])
-#print(str(x.english))
+#x = Definition(f[2915])
+#print(str(x.chinese))
 
 class Dictionary:
     def __init__(self,filename):
@@ -90,7 +100,22 @@ class Dictionary:
             # TODO: Line 650 scenarios
     
     def retrieve(self,text):
-        pass
+        fl = text[0:1]
+        try:
+            l = pickle.load(open(fl+".p","rb"))
+            found = False
+            ret = []
+            for d in l:
+                if d.english[0]==text:
+                    found = True
+                    ret.append(d)
+            if found==True:
+                return ret
+            else:
+                return None     
+        except FileNotFoundError:
+            return None
+        
 
 Dictionary("en-cmn-enwiktionary.txt")
 

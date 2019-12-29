@@ -1,2 +1,8 @@
-- Line 30464: Extra information in translation keep?
+- Line 30464: Extra information in translation keep? (Yep)
 - Line 650: Fill-in-dots scenarios?
+- Line 28750: Mainland China vs. Taiwan identifiers (Should be fine, might want to revise)
+- Line 28743: Just word, no pinyin (Yep)
+- Line 28054: Simplified vs. Traditional in complex scenarios (Yep)
+- Line 9710: Weird "please verify correctness" (Yep)
+- Line 8910: Simplified vs. Traditional in complex scenarios (Yep)
+- Replace tags around POS and meta? (Yep)

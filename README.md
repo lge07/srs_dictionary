@@ -15,7 +15,8 @@ The definition class is an attempt to hold all of the information I may need reg
 - `self.pos` is a **string** of the POS tag that was included. Not the type I'd like to use exactly, but good enough.
 - `self.meta` is a **string** of the extra data regarding the scenario of the word.
 - `self.chinese` is a **list** that contains the Chinese translations.
-- `self.singleletter` is a **string** for verifying that the line isn't one of the single-letter pronounciations (see line 5 of en-cmn-enwiktionary.txt for clarification)
+- `self.zh_extra` is a **list** that contains additional Chinese information given within parenthesis.
+- `self.singleletter` is a **string** for verifying that the line isn't one of the single-letter pronounciations (see line 5 of en-cmn-enwiktionary.txt for an example).
 
 ### Parse Method
 The parse method is fairly linear. Given the formatting of the definitions, it uses some regular expressions and simple character-in statements to look through what's going on. Expects a valid string.
@@ -23,7 +24,7 @@ The parse method is fairly linear. Given the formatting of the definitions, it u
 - Searches for Part-of-Speech (in `{}`), and more information (in `()`).
 - Replaces POS and meta along with the spaces surrounding to get the actual English phrase.
 - If `self.singleletter` is in the text, well, then search for and remove everything but the letter
-- Otherwise, split by parenthesis, and look for what's closest to the pinyin in `/` because that's the simplified chinese. Add to the list.
+- Otherwise, split by parenthesis, and look for what's simplified using the `hanzidentifier` library. Add to the list.
 
 ## Dictionary Class
 The dictionary class is an attempt to contain and organise the definitions, and provide means of accessing a definition.
@@ -44,4 +45,5 @@ div is meant to divide `self.terms` into files based on the first letter.
 - Moves into that directory
 - While the first letter is consistent, just add terms to a list of the same first letter.
 - If not, well, time to clear the list, and dump.
+
 
